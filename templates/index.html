@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PCInfo — характеристики и текущая загрузка вашего компьютера.">
+    <title>PCInfo — информация о компьютере</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="brand">
+                <span class="logo" aria-hidden="true"><span></span></span>
+                <div>
+                    <h1>PC<span>Info</span></h1>
+                    <p>Информация о вашем компьютере</p>
+                </div>
+            </div>
+            <span class="badge"><span class="status-dot" aria-hidden="true"></span>Локальная система</span>
+        </header>
+
+        <main>
+            <div class="page-heading">
+                <div>
+                    <p class="eyebrow">Обзор системы</p>
+                    <h2>Всё о вашем ПК</h2>
+                    <p class="muted">Основные характеристики и текущая загрузка.</p>
+                </div>
+                <p class="updated">Последнее обновление<span>{{ updated_at }}</span></p>
+            </div>
+
+            <section class="card system-card" aria-labelledby="system-title">
+                <div class="system-heading">
+                    <span class="icon system-icon" aria-hidden="true">▦</span>
+                    <div>
+                        <h2 id="system-title" class="eyebrow">Операционная система</h2>
+                        <p class="system-name">{{ system.name }}</p>
+                    </div>
+                </div>
+                <dl class="system-details">
+                    <div><dt>Версия ОС</dt><dd>{{ system.version }}</dd></div>
+                    <div><dt>Архитектура</dt><dd>{{ system.architecture }}</dd></div>
+                    <div><dt>Имя компьютера</dt><dd>{{ system.hostname }}</dd></div>
+                </dl>
+            </section>
+
+            <div class="metrics-grid">
+                <section class="card metric-card" aria-labelledby="cpu-title">
+                    <div class="card-heading">
+                        <span class="icon" aria-hidden="true">▦</span>
+                        <h2 id="cpu-title">Процессор</h2>
+                    </div>
+                    <p class="card-description">{{ cpu.name }}</p>
+                    {% if cpu.percent is not none %}
+                    <p class="metric">{{ cpu.percent }}<span>%</span></p>
+                    <p class="metric-label">Текущая загрузка</p>
+                    <progress value="{{ cpu.percent }}" max="100" aria-label="Загрузка процессора">{{ cpu.percent }}%</progress>
+                    {% else %}
+                    <p class="unavailable">Недоступно</p>
+                    <p class="metric-label">Не удалось измерить загрузку.</p>
+                    {% endif %}
+                    <dl class="details">
+                        <div><dt>Физические ядра</dt><dd>{{ cpu.cores }}</dd></div>
+                        <div><dt>Логические процессоры</dt><dd>{{ cpu.threads }}</dd></div>
+                    </dl>
+                </section>
+
+                <section class="card metric-card" aria-labelledby="memory-title">
+                    <div class="card-heading">
+                        <span class="icon" aria-hidden="true">▤</span>
+                        <h2 id="memory-title">Оперативная память</h2>
+                    </div>
+                    <p class="card-description">Физическая память компьютера</p>
+                    {% if memory %}
+                    <p class="metric">{{ memory.percent }}<span>%</span></p>
+                    <p class="metric-label">Используется {{ memory.used }} ГБ из {{ memory.total }} ГБ</p>
+                    <progress value="{{ memory.percent }}" max="100" aria-label="Использование оперативной памяти">{{ memory.percent }}%</progress>
+                    <dl class="details">
+                        <div><dt>Всего</dt><dd>{{ memory.total }} <span>ГБ</span></dd></div>
+                        <div><dt>Доступно</dt><dd>{{ memory.available }} <span>ГБ</span></dd></div>
+                    </dl>
+                    {% else %}
+                    <p class="unavailable">Недоступно</p>
+                    <p class="muted">Не удалось получить сведения о памяти.</p>
+                    {% endif %}
+                </section>
+
+                <section class="card metric-card" aria-labelledby="disk-title">
+                    <div class="card-heading">
+                        <span class="icon" aria-hidden="true">▱</span>
+                        <h2 id="disk-title">Накопитель</h2>
+                    </div>
+                    <p class="card-description">Системный диск{% if disk %} <span class="drive-name">{{ disk.path }}</span>{% endif %}</p>
+                    {% if disk %}
+                    <p class="metric">{{ disk.percent }}<span>%</span></p>
+                    <p class="metric-label">Занято {{ disk.used }} ГБ из {{ disk.total }} ГБ</p>
+                    <progress value="{{ disk.percent }}" max="100" aria-label="Заполнение системного диска">{{ disk.percent }}%</progress>
+                    <dl class="details">
+                        <div><dt>Всего</dt><dd>{{ disk.total }} <span>ГБ</span></dd></div>
+                        <div><dt>Свободно</dt><dd>{{ disk.free }} <span>ГБ</span></dd></div>
+                    </dl>
+                    {% else %}
+                    <p class="unavailable">Недоступно</p>
+                    <p class="muted">Не удалось получить сведения о диске.</p>
+                    {% endif %}
+                </section>
+            </div>
+
+            <div class="extra-grid">
+                <section class="card small-card" aria-labelledby="python-title">
+                    <span class="icon" aria-hidden="true">&gt;_</span>
+                    <div>
+                        <h2 id="python-title">Python</h2>
+                        <p class="small-value">{{ python_version }}</p>
+                        <p class="muted">Версия интерпретатора · {{ python_platform }}</p>
+                    </div>
+                </section>
+                <section class="card small-card" aria-labelledby="uptime-title">
+                    <span class="icon" aria-hidden="true">◷</span>
+                    <div>
+                        <h2 id="uptime-title">Время работы</h2>
+                        <p class="small-value">{{ uptime }}</p>
+                        <p class="muted">С последнего запуска системы</p>
+                    </div>
+                </section>
+            </div>
+
+            <div class="refresh-panel">
+                <div>
+                    <p class="refresh-title">Актуальные данные — в один клик</p>
+                    <p class="muted">Показатели обновляются при загрузке страницы.</p>
+                </div>
+                <form action="{{ url_for('index') }}" method="get">
+                    <button type="submit"><span aria-hidden="true">↻</span>Обновить информацию</button>
+                </form>
+            </div>
+        </main>
+
+        <footer>
+            <p><span class="status-dot" aria-hidden="true"></span>Данные остаются на вашем компьютере</p>
+            <p>PCInfo <span>·</span> Учебный проект</p>
+        </footer>
+    </div>
+</body>
+</html>
